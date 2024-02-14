@@ -18,12 +18,12 @@ object PlayerFlagCommand {
                     replaceSuggestions(ArgumentSuggestions.strings { server.onlinePlayers.map { it.name }.toTypedArray() })
                 }
                 stringArgument("flagName") {
-                    replaceSuggestions(ArgumentSuggestions.strings { flagEntries.map { it.flagName }.toTypedArray() })
+                    replaceSuggestions(ArgumentSuggestions.strings { flagEntries.map { it.toString() }.toTypedArray() })
                 }
                 booleanArgument("value")
                 anyExecutor { sender, arguments ->
                     val target = server.getPlayer(arguments["targetName"] as String)
-                    val flag = flagEntries.find { it.flagName == arguments["flagName"] as String }
+                    val flag = flagEntries.find { it.toString() == arguments["flagName"] as String }
                     if (target == null) sender.sendMessage("A")
                     else if (flag == null) sender.sendMessage("B")
                     else {
@@ -35,7 +35,7 @@ object PlayerFlagCommand {
             subcommand("world") {
                 worldArgument("target")
                 stringArgument("flagName") {
-                    replaceSuggestions(ArgumentSuggestions.strings { WorldFlag.entries.map { it.flagName }.toTypedArray() })
+                    replaceSuggestions(ArgumentSuggestions.strings { WorldFlag.entries.map { it.toString() }.toTypedArray() })
                 }
                 booleanArgument("value")
                 anyExecutor { sender, arguments -> }

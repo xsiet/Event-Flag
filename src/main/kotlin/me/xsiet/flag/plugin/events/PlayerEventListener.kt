@@ -6,148 +6,305 @@ import io.papermc.paper.event.player.*
 import me.xsiet.flag.plugin.enums.PlayerFlag
 import me.xsiet.flag.plugin.managers.getFlagValue
 import org.bukkit.entity.Player
-import org.bukkit.event.Cancellable
-import org.bukkit.event.EventHandler
-import org.bukkit.event.EventPriority
-import org.bukkit.event.Listener
+import org.bukkit.event.*
+import org.bukkit.event.entity.*
+import org.bukkit.event.inventory.InventoryEvent
 import org.bukkit.event.player.*
 
 object PlayerEventListener: Listener {
-    private fun Cancellable.flag(player: Player, flag: PlayerFlag) { if (!player.getFlagValue(flag)) isCancelled = true }
+    private fun Cancellable.flag(event: Event) {
+        fun flag(player: Player) {
+            if (!player.getFlagValue(PlayerFlag.entries.find { it.toString() == event.eventName }!!)) isCancelled = true
+        }
+        if (event is PlayerEvent) flag(event.player)
+        else if (event is EntityEvent) {
+            val entity = event.entity
+            if (entity is Player) flag(entity)
+        }
+        else if (event is InventoryEvent) {}
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PlayerEvent: org.bukkit.event.player
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerAnimationEvent.on() { flag(player, PlayerFlag.ANIMATION) }
+    private fun PlayerAnimationEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerArmorStandManipulateEvent.on() { flag(player, PlayerFlag.ARMOR_STAND_MANIPULATE) }
+    private fun PlayerArmorStandManipulateEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerAttemptPickupItemEvent.on() { flag(player, PlayerFlag.ATTEMPT_PICKUP_ITEM) }
+    private fun PlayerAttemptPickupItemEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBedEnterEvent.on() { flag(player, PlayerFlag.BED_ENTER) }
+    private fun PlayerBedEnterEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBedLeaveEvent.on() { flag(player, PlayerFlag.BED_LEAVE) }
+    private fun PlayerBedLeaveEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBucketEmptyEvent.on() { flag(player, PlayerFlag.BUCKET_EMPTY) }
+    private fun PlayerBucketEmptyEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBucketEntityEvent.on() { flag(player, PlayerFlag.BUCKET_ENTITY) }
+    private fun PlayerBucketEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBucketFillEvent.on() { flag(player, PlayerFlag.BUCKET_FILL) }
+    private fun PlayerBucketFillEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerCommandPreprocessEvent.on() { flag(player, PlayerFlag.COMMAND_PREPROCESS) }
+    private fun PlayerCommandPreprocessEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerDropItemEvent.on() { flag(player, PlayerFlag.DROP_ITEM) }
+    private fun PlayerDropItemEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerEditBookEvent.on() { flag(player, PlayerFlag.EDIT_BOOK) }
+    private fun PlayerEditBookEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerFishEvent.on() { flag(player, PlayerFlag.FISH) }
+    private fun PlayerFishEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerGameModeChangeEvent.on() { flag(player, PlayerFlag.GAME_MODE_CHANGE) }
+    private fun PlayerGameModeChangeEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerHarvestBlockEvent.on() { flag(player, PlayerFlag.HARVEST_BLOCK) }
+    private fun PlayerHarvestBlockEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerInteractAtEntityEvent.on() { flag(player, PlayerFlag.INTERACT_AT_ENTITY) }
+    private fun PlayerInteractAtEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerInteractEntityEvent.on() { flag(player, PlayerFlag.INTERACT_ENTITY) }
+    private fun PlayerInteractEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerInteractEvent.on() { flag(player, PlayerFlag.INTERACT) }
+    private fun PlayerInteractEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemConsumeEvent.on() { flag(player, PlayerFlag.ITEM_CONSUME) }
+    private fun PlayerItemConsumeEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemDamageEvent.on() { flag(player, PlayerFlag.ITEM_DAMAGE) }
+    private fun PlayerItemDamageEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemHeldEvent.on() { flag(player, PlayerFlag.ITEM_HELD) }
+    private fun PlayerItemHeldEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemMendEvent.on() { flag(player, PlayerFlag.ITEM_MEND) }
+    private fun PlayerItemMendEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerKickEvent.on() { flag(player, PlayerFlag.KICK)  }
+    private fun PlayerKickEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerMoveEvent.on() { flag(player, PlayerFlag.MOVE) }
+    private fun PlayerMoveEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerPickupArrowEvent.on() { flag(player, PlayerFlag.PICKUP_ARROW) }
+    private fun PlayerPickupArrowEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerPortalEvent.on() { flag(player, PlayerFlag.PORTAL) }
+    private fun PlayerPortalEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerRecipeDiscoverEvent.on() { flag(player, PlayerFlag.RECIPE_DISCOVER) }
+    private fun PlayerRecipeDiscoverEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerShearEntityEvent.on() { flag(player, PlayerFlag.SHEAR_ENTITY) }
+    private fun PlayerShearEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerStatisticIncrementEvent.on() { flag(player, PlayerFlag.STATISTIC_INCREMENT) }
+    private fun PlayerStatisticIncrementEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerSwapHandItemsEvent.on() { flag(player, PlayerFlag.SWAP_HAND_ITEMS) }
+    private fun PlayerSwapHandItemsEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerTakeLecternBookEvent.on() { flag(player, PlayerFlag.TAKE_LECTERN_BOOK) }
+    private fun PlayerTakeLecternBookEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerTeleportEvent.on() { flag(player, PlayerFlag.TELEPORT) }
+    private fun PlayerTeleportEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerToggleFlightEvent.on() { flag(player, PlayerFlag.TOGGLE_FLIGHT) }
+    private fun PlayerToggleFlightEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerToggleSneakEvent.on() { flag(player, PlayerFlag.TOGGLE_SNEAK) }
+    private fun PlayerToggleSneakEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerToggleSprintEvent.on() { flag(player, PlayerFlag.TOGGLE_SPRINT) }
+    private fun PlayerToggleSprintEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerUnleashEntityEvent.on() { flag(player, PlayerFlag.UNLEASH_ENTITY) }
+    private fun PlayerUnleashEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerVelocityEvent.on() { flag(player, PlayerFlag.VELOCITY) }
+    private fun PlayerVelocityEvent.on() { flag(this) }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PlayerEvent: com.destroystokyo.paper.event.player
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerAdvancementCriterionGrantEvent.on() { flag(player, PlayerFlag.ADVANCEMENT_CRITERION_GRANT) }
+    private fun PlayerAdvancementCriterionGrantEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerAttackEntityCooldownResetEvent.on() { flag(player, PlayerFlag.ATTACK_ENTITY_COOLDOWN_RESET) }
+    private fun PlayerAttackEntityCooldownResetEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerElytraBoostEvent.on() { flag(player, PlayerFlag.ELYTRA_BOOST) }
+    private fun PlayerElytraBoostEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerJumpEvent.on() { flag(player, PlayerFlag.JUMP) }
+    private fun PlayerJumpEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerLaunchProjectileEvent.on() { flag(player, PlayerFlag.LAUNCH_PROJECTILE) }
+    private fun PlayerLaunchProjectileEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerPickupExperienceEvent.on() { flag(player, PlayerFlag.PICKUP_EXPERIENCE) }
+    private fun PlayerPickupExperienceEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerReadyArrowEvent.on() { flag(player, PlayerFlag.READY_ARROW) }
+    private fun PlayerReadyArrowEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerRecipeBookClickEvent.on() { flag(player, PlayerFlag.RECIPE_BOOK_CLICK) }
+    private fun PlayerRecipeBookClickEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerSetSpawnEvent.on() { flag(player, PlayerFlag.SET_SPAWN) }
+    private fun PlayerSetSpawnEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerStartSpectatingEntityEvent.on() { flag(player, PlayerFlag.START_SPECTATING_ENTITY) }
+    private fun PlayerStartSpectatingEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerStopSpectatingEntityEvent.on() { flag(player, PlayerFlag.STOP_SPECTATING_ENTITY) }
+    private fun PlayerStopSpectatingEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerTeleportEndGatewayEvent.on() { flag(player, PlayerFlag.TELEPORT_END_GATEWAY) }
+    private fun PlayerTeleportEndGatewayEvent.on() { flag(this) }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // PlayerEvent: io.papermc.paper.event.player
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun AsyncChatEvent.on() { flag(player, PlayerFlag.ASYNC_CHAT) }
+    private fun AsyncChatEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerArmSwingEvent.on() { flag(player, PlayerFlag.ARM_SWING) }
+    private fun PlayerArmSwingEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerBedFailEnterEvent.on() { flag(player, PlayerFlag.BED_FAIL_ENTER) }
+    private fun PlayerBedFailEnterEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerChangeBeaconEffectEvent.on() { flag(player, PlayerFlag.CHANGE_BEACON_EFFECT) }
+    private fun PlayerChangeBeaconEffectEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerDeepSleepEvent.on() { flag(player, PlayerFlag.DEEP_SLEEP) }
+    private fun PlayerDeepSleepEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerFlowerPotManipulateEvent.on() { flag(player, PlayerFlag.FLOWER_POT_MANIPULATE) }
+    private fun PlayerFlowerPotManipulateEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemCooldownEvent.on() { flag(player, PlayerFlag.ITEM_COOLDOWN) }
+    private fun PlayerItemCooldownEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerItemFrameChangeEvent.on() { flag(player, PlayerFlag.ITEM_FRAME_CHANGE) }
+    private fun PlayerItemFrameChangeEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerLecternPageChangeEvent.on() { flag(player, PlayerFlag.LECTERN_PAGE_CHANGE) }
+    private fun PlayerLecternPageChangeEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerLoomPatternSelectEvent.on() { flag(player, PlayerFlag.LOOM_PATTERN_SELECT) }
+    private fun PlayerLoomPatternSelectEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerNameEntityEvent.on() { flag(player, PlayerFlag.NAME_ENTITY) }
+    private fun PlayerNameEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerOpenSignEvent.on() { flag(player, PlayerFlag.OPEN_SIGN) }
+    private fun PlayerOpenSignEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerPickItemEvent.on() { flag(player, PlayerFlag.PICK_ITEM) }
+    private fun PlayerPickItemEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerPurchaseEvent.on() { flag(player, PlayerFlag.PURCHASE) }
+    private fun PlayerPurchaseEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerShieldDisableEvent.on() { flag(player, PlayerFlag.SHIELD_DISABLE) }
+    private fun PlayerShieldDisableEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerSignCommandPreprocessEvent.on() { flag(player, PlayerFlag.SIGN_COMMAND_PREPROCESS) }
+    private fun PlayerSignCommandPreprocessEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerStonecutterRecipeSelectEvent.on() { flag(player, PlayerFlag.STONECUTTER_RECIPE_SELECT) }
+    private fun PlayerStonecutterRecipeSelectEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerTrackEntityEvent.on() { flag(player, PlayerFlag.TRACK_ENTITY) }
+    private fun PlayerTrackEntityEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PlayerTradeEvent.on() { flag(player, PlayerFlag.TRADE) }
+    private fun PlayerTradeEvent.on() { flag(this) }
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
-    private fun PrePlayerAttackEntityEvent.on() { flag(player, PlayerFlag.PRE_ATTACK_ENTITY) }
+    private fun PrePlayerAttackEntityEvent.on() { flag(this) }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // EntityEvent: org.bukkit.event.entity
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun AreaEffectCloudApplyEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ArrowBodyCountChangeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun BatToggleSleepEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun CreatureSpawnEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun CreeperPowerEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EnderDragonChangePhaseEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityAirChangeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityBreakDoorEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityBreedEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityChangeBlockEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityCombustByBlockEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityCombustByEntityEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityCombustEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDamageByBlockEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDamageByEntityEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDamageEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDeathEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDismountEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityDropItemEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityEnterBlockEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityEnterLoveModeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityExhaustionEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityExplodeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityInteractEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityMountEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityPickupItemEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityPlaceEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityPortalEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityPortalExitEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityPotionEffectEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityRegainHealthEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityResurrectEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityShootBowEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntitySpawnEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntitySpellCastEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityTameEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityTargetEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityTargetLivingEntityEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityTeleportEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityToggleGlideEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityToggleSwimEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityTransformEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun EntityUnleashEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ExpBottleEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ExplosionPrimeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun FireworkExplodeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun FoodLevelChangeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun HorseJumpEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ItemDespawnEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ItemMergeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ItemSpawnEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun LingeringPotionSplashEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PiglinBarterEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PigZapEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PigZombieAngerEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PlayerDeathEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PlayerLeashEntityEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun PotionSplashEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ProjectileHitEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun ProjectileLaunchEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun SheepDyeWoolEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun SheepRegrowWoolEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun SlimeSplitEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun SpawnerSpawnEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun StriderTemperatureChangeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun VillagerAcquireTradeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun VillagerCareerChangeEvent.on() { flag(this) }
+    @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+    private fun VillagerReplenishTradeEvent.on() { flag(this) }
 }

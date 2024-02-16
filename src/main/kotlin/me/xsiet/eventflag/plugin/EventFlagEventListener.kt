@@ -7,6 +7,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockEvent
+import org.bukkit.event.block.BlockExpEvent
 import org.bukkit.event.entity.EntityEvent
 import org.bukkit.event.hanging.HangingEvent
 import org.bukkit.event.inventory.InventoryEvent
@@ -17,6 +18,7 @@ import org.bukkit.event.world.WorldEvent
 import org.bukkit.plugin.EventExecutor
 import org.reflections.Reflections
 
+@Suppress("Unchecked_cast")
 class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
     private val server = plugin.server
     init {
@@ -26,14 +28,17 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
             "com.destroystokyo.paper.event",
             "io.papermc.paper.event"
         )
+        val cancellableClasses =
+            reflections.getSubTypesOf(Cancellable::class.java)
+        fun getClasses(clazz: Class<*>) = reflections.getSubTypesOf(clazz).filter {
+            cancellableClasses.contains(it) && it.declaredFields.any { field ->
+                field.type.name.endsWith("HandlerList")
+            }
+        }
         val serverEventClassList = ArrayList<Class<*>>().apply {
-            addAll(reflections.getSubTypesOf(Cancellable::class.java))
+            addAll(getClasses(Event::class.java))
             forEach { serverEventClassNameList.add(it.name) }
         }
-        fun Class<*>.filter() = serverEventClassList.contains(this) && declaredFields.any {
-            it.type.name.endsWith("HandlerList")
-        }
-        fun getClasses(clazz: Class<*>) = reflections.getSubTypesOf(clazz).filter { it.filter() }
         ArrayList<Class<*>>().apply {
             addAll(ArrayList<Class<*>>().apply {
                 addAll(ArrayList<Class<*>>().apply {
@@ -49,7 +54,10 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                 forEach { entityEventClassNameList.add(it.name) }
             })
             addAll(ArrayList<Class<*>>().apply {
-                addAll(getClasses(BlockEvent::class.java))
+                arrayListOf(
+                    BlockEvent::class.java,
+                    BlockExpEvent::class.java
+                ).forEach { addAll(getClasses(it)) }
                 forEach { blockEventClassNameList.add(it.name) }
             })
             arrayListOf(
@@ -58,9 +66,9 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
             ).forEach { addAll(getClasses(it)) }
             forEach { worldEventClassNameList.add(it.name) }
         }
-        reflections.getSubTypesOf(Event::class.java).filter { it.filter() }.toSet().forEach {
+        serverEventClassList.forEach {
             val executor = EventExecutor { _, event -> onEvent(event, it.name) }
-            server.pluginManager.registerEvent(it, this, EventPriority.LOWEST, executor, plugin, true)
+            server.pluginManager.registerEvent(it as Class<out Event>, this, EventPriority.LOWEST, executor, plugin, true)
         }
     }
     private fun onEvent(event: Event, className: String) = (event as Cancellable).apply {

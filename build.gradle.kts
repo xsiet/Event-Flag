@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-private val paperVersion = project.properties["paperVersion"].toString()
+private val paperVersion = Dependency.PAPER_VERSION
 plugins {
-    kotlin("jvm") version Dependency.Kotlin.VERSION
+    kotlin("jvm") version Dependency.KOTLIN_VERSION
     id("io.papermc.paperweight.userdev") version "1.5.11"
     id("net.minecrell.plugin-yml.paper") version "0.6.0"
     id("xyz.jpenilla.run-paper") version "2.2.2"
@@ -19,15 +19,15 @@ dependencies {
     }
 }
 paper {
+    apiVersion = Dependency.PAPER_API_VERSION
     name = rootProject.name
     version = project.version.toString()
-    paperVersion.apply { apiVersion = split(".${split(".")[2]}")[0] }
-    generateLibrariesJson = true
-    val codeName = name!!.replace("-", "")
-    "${group}.${codeName.lowercase()}.plugin.".apply {
-        loader = "${this}loader.${codeName}PluginLoader"
-        main = "${this}${codeName}Plugin"
+    val title = name!!.replace("-", "")
+    "${group}.${title.lowercase()}.plugin.".apply {
+        main = "${this}${title}Plugin"
+        loader = "${this}loader.${title}PluginLoader"
     }
+    generateLibrariesJson = true
 }
 tasks {
     withType<KotlinCompile> { kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString() }

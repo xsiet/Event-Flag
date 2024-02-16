@@ -1,1 +1,1 @@
-rootProject.name = "Flag"
+rootProject.name = "Event-Flag"

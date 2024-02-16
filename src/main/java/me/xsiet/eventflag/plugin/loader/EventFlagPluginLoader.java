@@ -1,4 +1,4 @@
-package me.xsiet.flag.plugin.loader;
+package me.xsiet.eventflag.plugin.loader;
 
 import com.google.gson.Gson;
 import io.papermc.paper.plugin.loader.PluginClasspathBuilder;
@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"UnstableApiUsage", "unused"})
-public class FlagPluginLoader implements PluginLoader {
+public class EventFlagPluginLoader implements PluginLoader {
     private record PluginLibraries(Map<String, String> repositories, List<String> dependencies) {
         public Stream<RemoteRepository> asRepositories() {
             Stream<Map.Entry<String, String>> stream = repositories.entrySet().stream();

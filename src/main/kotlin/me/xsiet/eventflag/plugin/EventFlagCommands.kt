@@ -9,12 +9,16 @@ import org.bukkit.World
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Entity
 
-fun registerEventFlagCommands(
-    classNameList: ArrayList<String>,
-    server: Server
-) = commandAPICommand("event-flag") {
-    withRequirement { sender -> sender is ConsoleCommandSender || sender.isOp }
+fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") {
+    withRequirement { it is ConsoleCommandSender || it.isOp }
     fun CommandAPICommand.eventFlagCommand(subcommandName: String) {
+        val classNameList = when (subcommandName) {
+            "server" -> serverEventClassNameList
+            "world" -> worldEventClassNameList
+            "block" -> blockEventClassNameList
+            "entity" -> entityEventClassNameList
+            else -> ArrayList()
+        }
         stringArgument("className") {
             replaceSuggestions(ArgumentSuggestions.strings { classNameList.toTypedArray() })
         }

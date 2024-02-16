@@ -20,23 +20,48 @@ import org.reflections.Reflections
 class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
     private val server = plugin.server
     init {
-        val classList = ArrayList<Class<*>>()
-        val classNameList = ArrayList<String>()
         val reflections = Reflections(
             "org.bukkit.event",
             "org.spigotmc.event",
             "com.destroystokyo.paper.event",
             "io.papermc.paper.event"
         )
-        classList.addAll(reflections.getSubTypesOf(Cancellable::class.java))
-        reflections.getSubTypesOf(Event::class.java).filter {
-            classList.contains(it) && it.declaredFields.any { field -> field.type.name.endsWith("HandlerList") }
-        }.toSet().forEach { eventClass ->
-            val className = eventClass.name.apply { classNameList.add(this) }
-            val executor = EventExecutor { _, event -> onEvent(event, className) }
-            server.pluginManager.registerEvent(eventClass, this, EventPriority.LOWEST, executor, plugin, true)
+        val serverEventClassList = ArrayList<Class<*>>().apply {
+            addAll(reflections.getSubTypesOf(Cancellable::class.java))
+            forEach { serverEventClassNameList.add(it.name) }
         }
-        registerEventFlagCommands(classNameList, server)
+        fun Class<*>.filter() = serverEventClassList.contains(this) && declaredFields.any {
+            it.type.name.endsWith("HandlerList")
+        }
+        fun getClasses(clazz: Class<*>) = reflections.getSubTypesOf(clazz).filter { it.filter() }
+        ArrayList<Class<*>>().apply {
+            addAll(ArrayList<Class<*>>().apply {
+                addAll(ArrayList<Class<*>>().apply {
+                    addAll(getClasses(InventoryEvent::class.java))
+                    forEach { inventoryEventClassNameList.add(it.name) }
+                })
+                arrayListOf(
+                    EntityEvent::class.java,
+                    HangingEvent::class.java,
+                    PlayerEvent::class.java,
+                    VehicleEvent::class.java
+                ).forEach { addAll(getClasses(it)) }
+                forEach { entityEventClassNameList.add(it.name) }
+            })
+            addAll(ArrayList<Class<*>>().apply {
+                addAll(getClasses(BlockEvent::class.java))
+                forEach { blockEventClassNameList.add(it.name) }
+            })
+            arrayListOf(
+                WeatherEvent::class.java,
+                WorldEvent::class.java
+            ).forEach { addAll(getClasses(it)) }
+            forEach { worldEventClassNameList.add(it.name) }
+        }
+        reflections.getSubTypesOf(Event::class.java).filter { it.filter() }.toSet().forEach {
+            val executor = EventExecutor { _, event -> onEvent(event, it.name) }
+            server.pluginManager.registerEvent(it, this, EventPriority.LOWEST, executor, plugin, true)
+        }
     }
     private fun onEvent(event: Event, className: String) = (event as Cancellable).apply {
         fun cancel() { isCancelled = true }

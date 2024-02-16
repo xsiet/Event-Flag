@@ -6,6 +6,11 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.inventory.Inventory
 
+val serverEventClassNameList = ArrayList<String>()
+val worldEventClassNameList = ArrayList<String>()
+val blockEventClassNameList = ArrayList<String>()
+val inventoryEventClassNameList = ArrayList<String>()
+val entityEventClassNameList = ArrayList<String>()
 private val serverDisallowedEventClassNameList = ArrayList<String>()
 private val worldDisallowedEventClassNameListMap = LinkedHashMap<World, ArrayList<String>>()
 private val blockDisallowedEventClassNameListMap = LinkedHashMap<Block, ArrayList<String>>()

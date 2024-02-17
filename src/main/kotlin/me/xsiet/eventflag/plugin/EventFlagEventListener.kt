@@ -18,8 +18,8 @@ import org.reflections.Reflections
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
 
-@Suppress("Unchecked_cast")
-class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
+@Suppress("UNCHECKED_CAST")
+internal class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
     private val server = plugin.server
     init {
         val reflections = Reflections(
@@ -32,58 +32,32 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
         fun Class<*>.filter() = cancellableClasses.contains(this)
         ArrayList<String>().apply {
             addAll(ArrayList<String>().apply {
-                reflections.getSubTypesOf(InventoryEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
+                reflections.getSubTypesOf(InventoryEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
                 inventoryEventClassNameList.addAll(this)
-                reflections.getSubTypesOf(EntityEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
-                reflections.getSubTypesOf(HangingEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
-                reflections.getSubTypesOf(PlayerEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
-                reflections.getSubTypesOf(VehicleEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
+                reflections.getSubTypesOf(EntityEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
+                reflections.getSubTypesOf(HangingEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
+                reflections.getSubTypesOf(PlayerEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
+                reflections.getSubTypesOf(VehicleEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
                 entityEventClassNameList.addAll(this)
             })
             addAll(ArrayList<String>().apply {
-                reflections.getSubTypesOf(BlockEvent::class.java).stream().filter {
-                    it.filter()
-                }.collect(Collectors.toSet()).forEach {
-                    add(it.name)
-                }
+                reflections.getSubTypesOf(BlockEvent::class.java).stream().filter { it.filter() }
+                    .collect(Collectors.toSet()).forEach { add(it.name) }
                 blockEventClassNameList.addAll(this)
             })
-            reflections.getSubTypesOf(WeatherEvent::class.java).stream().filter {
-                it.filter()
-            }.collect(Collectors.toSet()).forEach {
-                add(it.name)
-            }
-            reflections.getSubTypesOf(WorldEvent::class.java).stream().filter {
-                it.filter()
-            }.collect(Collectors.toSet()).forEach {
-                add(it.name)
-            }
+            reflections.getSubTypesOf(WeatherEvent::class.java).stream().filter { it.filter() }
+                .collect(Collectors.toSet()).forEach { add(it.name) }
+            reflections.getSubTypesOf(WorldEvent::class.java).stream().filter { it.filter() }
+                .collect(Collectors.toSet()).forEach { add(it.name) }
             worldEventClassNameList.addAll(this)
         }
         cancellableClasses.forEach {
-            var className = it.name.apply {
-                serverEventClassNameList.add(this)
-            }
+            var className = it.name.apply { serverEventClassNameList.add(this) }
             try {
                 server.pluginManager.registerEvent(
                     it as Class<out Event>,
@@ -92,20 +66,18 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                     { _, event ->
                         if (event is Cancellable) event.apply {
                             className = javaClass.name
-                            fun cancel() {
-                                isCancelled = true
-                            }
-                            if (!server.getEventFlag(className)) cancel()
+                            fun cancel() { isCancelled = true }
+                            if (!server.eventFlag.get(className)) cancel()
                             else {
                                 fun checkWorldFlag(world: World): Boolean {
-                                    if (!world.getEventFlag(className)) {
+                                    if (!world.eventFlag.get(className)) {
                                         cancel()
                                         return true
                                     }
                                     else return false
                                 }
                                 fun checkEntityFlag(entity: Entity): Boolean {
-                                    if (!checkWorldFlag(entity.world) && !entity.getEventFlag(className)) {
+                                    if (!checkWorldFlag(entity.world) && !entity.eventFlag.get(className)) {
                                         cancel()
                                         return true
                                     }
@@ -113,12 +85,12 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                                 }
                                 when (this) {
                                     is BlockEvent -> {
-                                        if (!checkWorldFlag(block.world) && !block.getEventFlag(className)) cancel()
+                                        if (!checkWorldFlag(block.world) && !block.eventFlag.get(className)) cancel()
                                     }
                                     is EntityEvent -> checkEntityFlag(entity)
                                     is HangingEvent -> checkEntityFlag(entity)
                                     is InventoryEvent -> {
-                                        if (!checkEntityFlag(view.player) && !inventory.getEventFlag(className)) cancel()
+                                        if (!checkEntityFlag(view.player) && !inventory.eventFlag.get(className)) cancel()
                                     }
                                     is PlayerEvent -> checkEntityFlag(player)
                                     is VehicleEvent -> checkEntityFlag(vehicle)
@@ -139,9 +111,7 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                     blockEventClassNameList,
                     inventoryEventClassNameList,
                     entityEventClassNameList
-                ).forEach { list ->
-                    list.remove(className)
-                }
+                ).forEach { list -> list.remove(className) }
             }
         }
     }

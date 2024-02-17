@@ -27,9 +27,11 @@ fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") 
             }
         }
         stringArgument("classText") {
-            replaceSuggestions(ArgumentSuggestions.strings {
-                classTextList.toTypedArray()
-            })
+            replaceSuggestions(
+                ArgumentSuggestions.strings {
+                    classTextList.toTypedArray()
+                }
+            )
         }
         booleanArgument("value", true)
         anyExecutor { sender, arguments ->
@@ -40,18 +42,21 @@ fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") 
                 val className = "${classTextSplit[1]}.${classTextSplit[0]}"
                 val valueArgument = arguments["value"]
                 if (valueArgument == null) {
-
+                    resultMessage = ""
                 }
-                else
-                val value = arguments["value"] as Boolean
-                val target = arguments[subcommandName]
-                when (subcommandName) {
-                    "server" -> server.setEventFlag(className, value)
-                    "world" -> (target as World).setEventFlag(className, value)
-                    "block" -> (target as Location).block.setEventFlag(className, value)
-                    "entity" -> (target as Entity).setEventFlag(className, value)
+                else {
+                    val value = arguments["value"] as Boolean
+                    val target = arguments[subcommandName]
+                    when (subcommandName) {
+                        "server" -> server.setEventFlag(className, value)
+                        "world" -> (target as World).setEventFlag(className, value)
+                        "block" -> (target as Location).block.setEventFlag(className, value)
+                        "entity" -> (target as Collection<*>).forEach {
+                            (it as Entity).setEventFlag(className, value)
+                        }
+                    }
+                    resultMessage = "성공"
                 }
-                resultMessage = "성공"
             }
             else resultMessage = "에러"
             sender.sendMessage(resultMessage)

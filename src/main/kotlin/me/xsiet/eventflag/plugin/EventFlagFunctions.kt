@@ -26,6 +26,12 @@ private fun getDisallowedEventNameList(target: Any): ArrayList<String> {
         else -> ArrayList()
     }
 }
+private class EventFlag() {
+    fun get(className: String) {}
+    fun set(className: String, value: Boolean) {
+
+    }
+}
 private fun getEventFlag(target: Any, className: String) =
     !getDisallowedEventNameList(target).contains(className)
 private fun setEventFlag(target: Any, className: String, value: Boolean) =

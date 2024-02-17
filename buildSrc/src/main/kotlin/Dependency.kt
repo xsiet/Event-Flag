@@ -1,5 +1,5 @@
 object Dependency {
-    const val KOTLIN_VERSION = "1.9.0"
+    const val KOTLIN_VERSION = "1.9.22"
     const val PAPER_VERSION = "1.20.4"
     const val PAPER_API_VERSION = "1.20"
     private const val STDLIB = "org.jetbrains.kotlin:kotlin-stdlib:${KOTLIN_VERSION}"

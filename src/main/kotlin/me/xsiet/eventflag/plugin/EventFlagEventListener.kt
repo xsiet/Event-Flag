@@ -15,8 +15,10 @@ import org.bukkit.event.vehicle.VehicleEvent
 import org.bukkit.event.weather.WeatherEvent
 import org.bukkit.event.world.WorldEvent
 import org.reflections.Reflections
+import java.util.stream.Collectors
+import kotlin.collections.ArrayList
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("Unchecked_cast")
 class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
     private val server = plugin.server
     init {
@@ -26,46 +28,60 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
             "com.destroystokyo.paper.event",
             "io.papermc.paper.event"
         )
-        val cancellableClasses = reflections.getSubTypesOf(Cancellable::class.java)
-        fun getClasses(clazz: Class<*>) = reflections.getSubTypesOf(clazz).filter {
-            cancellableClasses.contains(it)
-        }
+        val cancellableClasses = reflections.getSubTypesOf(Cancellable::class.java).stream().collect(Collectors.toSet())
+        fun Class<*>.filter() = cancellableClasses.contains(this)
         ArrayList<String>().apply {
             addAll(ArrayList<String>().apply {
-                getClasses(InventoryEvent::class.java).forEach {
+                reflections.getSubTypesOf(InventoryEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
                     add(it.name)
                 }
                 inventoryEventClassNameList.addAll(this)
-                arrayListOf(
-                    EntityEvent::class.java,
-                    HangingEvent::class.java,
-                    PlayerEvent::class.java,
-                    VehicleEvent::class.java
-                ).forEach {
-                    getClasses(it).forEach { clazz ->
-                        add(clazz.name)
-                    }
+                reflections.getSubTypesOf(EntityEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
+                    add(it.name)
+                }
+                reflections.getSubTypesOf(HangingEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
+                    add(it.name)
+                }
+                reflections.getSubTypesOf(PlayerEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
+                    add(it.name)
+                }
+                reflections.getSubTypesOf(VehicleEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
+                    add(it.name)
                 }
                 entityEventClassNameList.addAll(this)
             })
             addAll(ArrayList<String>().apply {
-                getClasses(BlockEvent::class.java).forEach { clazz ->
-                    add(clazz.name)
+                reflections.getSubTypesOf(BlockEvent::class.java).stream().filter {
+                    it.filter()
+                }.collect(Collectors.toSet()).forEach {
+                    add(it.name)
                 }
                 blockEventClassNameList.addAll(this)
             })
-            arrayListOf(
-                WeatherEvent::class.java,
-                WorldEvent::class.java
-            ).forEach {
-                getClasses(it).forEach { clazz ->
-                    add(clazz.name)
-                }
+            reflections.getSubTypesOf(WeatherEvent::class.java).stream().filter {
+                it.filter()
+            }.collect(Collectors.toSet()).forEach {
+                add(it.name)
+            }
+            reflections.getSubTypesOf(WorldEvent::class.java).stream().filter {
+                it.filter()
+            }.collect(Collectors.toSet()).forEach {
+                add(it.name)
             }
             worldEventClassNameList.addAll(this)
         }
         cancellableClasses.forEach {
-            val className = it.name.apply {
+            var className = it.name.apply {
                 serverEventClassNameList.add(this)
             }
             try {
@@ -75,6 +91,7 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                     EventPriority.LOWEST,
                     { _, event ->
                         if (event is Cancellable) event.apply {
+                            className = javaClass.name
                             fun cancel() {
                                 isCancelled = true
                             }

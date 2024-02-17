@@ -10,25 +10,37 @@ import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Entity
 
 fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") {
-    withRequirement { it is ConsoleCommandSender || it.isOp }
+    withRequirement {
+        it is ConsoleCommandSender || it.isOp
+    }
     fun CommandAPICommand.eventFlagCommand(subcommandName: String) {
-        val classNameList = when (subcommandName) {
-            "server" -> serverEventClassNameList
-            "world" -> worldEventClassNameList
-            "block" -> blockEventClassNameList
-            "entity" -> entityEventClassNameList
-            else -> ArrayList()
+        val classTextList = ArrayList<String>().apply {
+            when (subcommandName) {
+                "server" -> serverEventClassNameList
+                "world" -> worldEventClassNameList
+                "block" -> blockEventClassNameList
+                "entity" -> entityEventClassNameList
+                else -> ArrayList()
+            }.forEach {
+                val eventName = it.split(".").last()
+                add("${eventName}-${it.replace(".${eventName}", "")}")
+            }
         }
-        stringArgument("className") {
-            replaceSuggestions(ArgumentSuggestions.strings { classNameList.toTypedArray() })
+        stringArgument("classText") {
+            replaceSuggestions(ArgumentSuggestions.strings {
+                classTextList.toTypedArray()
+            })
         }
         booleanArgument("value")
         anyExecutor { sender, arguments ->
+            val classText = arguments["classText"] as String
             val resultMessage: String
-            val className = arguments["className"] as String
-            if (classNameList.contains(className)) {
-                val target = arguments[subcommandName]
+            if (classTextList.contains(classText)) {
+                val classTextSplit = classText.split("-")
+                val className = "${classTextSplit[1]}.${classTextSplit[0]}"
+                sender.sendMessage(className)
                 val value = arguments["value"] as Boolean
+                val target = arguments[subcommandName]
                 when (subcommandName) {
                     "server" -> server.setEventFlag(className, value)
                     "world" -> (target as World).setEventFlag(className, value)
@@ -41,7 +53,9 @@ fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") 
             sender.sendMessage(resultMessage)
         }
     }
-    subcommand("server") { eventFlagCommand(name) }
+    subcommand("server") {
+        eventFlagCommand(name)
+    }
     subcommand("world") {
         worldArgument(name)
         eventFlagCommand(name)

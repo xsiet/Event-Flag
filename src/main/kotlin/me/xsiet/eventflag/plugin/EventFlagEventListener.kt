@@ -74,7 +74,42 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                     this,
                     EventPriority.LOWEST,
                     { _, event ->
-                        onEvent(event, className)
+                        if (event is Cancellable) event.apply {
+                            fun cancel() {
+                                isCancelled = true
+                            }
+                            if (!server.getEventFlag(className)) cancel()
+                            else {
+                                fun checkWorldFlag(world: World): Boolean {
+                                    if (!world.getEventFlag(className)) {
+                                        cancel()
+                                        return true
+                                    }
+                                    else return false
+                                }
+                                fun checkEntityFlag(entity: Entity): Boolean {
+                                    if (!checkWorldFlag(entity.world) && !entity.getEventFlag(className)) {
+                                        cancel()
+                                        return true
+                                    }
+                                    else return false
+                                }
+                                when (this) {
+                                    is BlockEvent -> {
+                                        if (!checkWorldFlag(block.world) && !block.getEventFlag(className)) cancel()
+                                    }
+                                    is EntityEvent -> checkEntityFlag(entity)
+                                    is HangingEvent -> checkEntityFlag(entity)
+                                    is InventoryEvent -> {
+                                        if (!checkEntityFlag(view.player) && !inventory.getEventFlag(className)) cancel()
+                                    }
+                                    is PlayerEvent -> checkEntityFlag(player)
+                                    is VehicleEvent -> checkEntityFlag(vehicle)
+                                    is WeatherEvent -> checkWorldFlag(world)
+                                    is WorldEvent -> checkWorldFlag(world)
+                                }
+                            }
+                        }
                     },
                     plugin,
                     true
@@ -89,44 +124,6 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
                     entityEventClassNameList
                 ).forEach { list ->
                     list.remove(className)
-                }
-            }
-        }
-    }
-    private fun onEvent(event: Event, className: String) = event.apply {
-        if (this is Cancellable) {
-            fun cancel() {
-                isCancelled = true
-            }
-            if (!server.getEventFlag(className)) cancel()
-            else {
-                fun checkWorldFlag(world: World): Boolean {
-                    if (!world.getEventFlag(className)) {
-                        cancel()
-                        return true
-                    }
-                    else return false
-                }
-                fun checkEntityFlag(entity: Entity): Boolean {
-                    if (!checkWorldFlag(entity.world) && !entity.getEventFlag(className)) {
-                        cancel()
-                        return true
-                    }
-                    else return false
-                }
-                when (this) {
-                    is BlockEvent -> {
-                        if (!checkWorldFlag(block.world) && !block.getEventFlag(className)) cancel()
-                    }
-                    is EntityEvent -> checkEntityFlag(entity)
-                    is HangingEvent -> checkEntityFlag(entity)
-                    is InventoryEvent -> {
-                        if (!checkEntityFlag(view.player) && !inventory.getEventFlag(className)) cancel()
-                    }
-                    is PlayerEvent -> checkEntityFlag(player)
-                    is VehicleEvent -> checkEntityFlag(vehicle)
-                    is WeatherEvent -> checkWorldFlag(world)
-                    is WorldEvent -> checkWorldFlag(world)
                 }
             }
         }

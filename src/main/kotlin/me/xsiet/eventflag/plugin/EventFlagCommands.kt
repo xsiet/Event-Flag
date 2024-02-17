@@ -31,14 +31,18 @@ fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") 
                 classTextList.toTypedArray()
             })
         }
-        booleanArgument("value")
+        booleanArgument("value", true)
         anyExecutor { sender, arguments ->
             val classText = arguments["classText"] as String
             val resultMessage: String
             if (classTextList.contains(classText)) {
                 val classTextSplit = classText.split("-")
                 val className = "${classTextSplit[1]}.${classTextSplit[0]}"
-                sender.sendMessage(className)
+                val valueArgument = arguments["value"]
+                if (valueArgument == null) {
+
+                }
+                else
                 val value = arguments["value"] as Boolean
                 val target = arguments[subcommandName]
                 when (subcommandName) {
@@ -65,7 +69,7 @@ fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") 
         eventFlagCommand(name)
     }
     subcommand("entity") {
-        entitySelectorArgumentOneEntity(name)
+        entitySelectorArgumentManyEntities(name)
         eventFlagCommand(name)
     }
 }

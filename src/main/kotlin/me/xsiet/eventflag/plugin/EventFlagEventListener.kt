@@ -26,10 +26,9 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
             "com.destroystokyo.paper.event",
             "io.papermc.paper.event"
         )
+        val cancellableClasses = reflections.getSubTypesOf(Cancellable::class.java)
         fun getClasses(clazz: Class<*>) = reflections.getSubTypesOf(clazz).filter {
-            it.declaredFields.any { field ->
-                field.type.name.endsWith("HandlerList")
-            }
+            cancellableClasses.contains(it)
         }
         ArrayList<String>().apply {
             addAll(ArrayList<String>().apply {
@@ -65,20 +64,33 @@ class EventFlagEventListener(plugin: EventFlagPlugin): Listener {
             }
             worldEventClassNameList.addAll(this)
         }
-        getClasses(Event::class.java).forEach {
+        cancellableClasses.forEach {
             val className = it.name.apply {
                 serverEventClassNameList.add(this)
             }
-            server.pluginManager.registerEvent(
-                it as Class<out Event>,
-                this,
-                EventPriority.LOWEST,
-                { _, event ->
-                    onEvent(event, className)
-                },
-                plugin,
-                true
-            )
+            try {
+                server.pluginManager.registerEvent(
+                    it as Class<out Event>,
+                    this,
+                    EventPriority.LOWEST,
+                    { _, event ->
+                        onEvent(event, className)
+                    },
+                    plugin,
+                    true
+                )
+            }
+            catch (_: Exception) {
+                arrayListOf(
+                    serverEventClassNameList,
+                    worldEventClassNameList,
+                    blockEventClassNameList,
+                    inventoryEventClassNameList,
+                    entityEventClassNameList
+                ).forEach { list ->
+                    list.remove(className)
+                }
+            }
         }
     }
     private fun onEvent(event: Event, className: String) = event.apply {

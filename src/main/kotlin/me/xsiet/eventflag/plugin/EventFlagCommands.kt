@@ -1,6 +1,5 @@
 package me.xsiet.eventflag.plugin
 
-import com.destroystokyo.paper.network.StandardPaperServerListPingEventImpl
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.kotlindsl.*

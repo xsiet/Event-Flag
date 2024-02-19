@@ -1,94 +1,97 @@
 package me.xsiet.eventflag.plugin
 
+import com.destroystokyo.paper.network.StandardPaperServerListPingEventImpl
 import dev.jorel.commandapi.CommandAPICommand
 import dev.jorel.commandapi.arguments.ArgumentSuggestions
 import dev.jorel.commandapi.kotlindsl.*
-import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Location
 import org.bukkit.Server
 import org.bukkit.World
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Entity
+import org.bukkit.event.Event
+import kotlin.reflect.KClass
 
+@Suppress("UNCHECKED_CAST")
 internal fun registerEventFlagCommands(server: Server) = commandAPICommand("event-flag") {
     withRequirement { it is ConsoleCommandSender || it.isOp }
     fun CommandAPICommand.eventFlagCommand(subcommandName: String) {
-        val classTextList = ArrayList<String>().apply {
+        val packageNameMap = LinkedHashMap<String, String>().apply {
             when (subcommandName) {
-                "server" -> serverEventClassNameList
-                "world" -> worldEventClassNameList
-                "block" -> blockEventClassNameList
-                "entity" -> entityEventClassNameList
+                "server" -> serverEventKClassList
+                "world" -> worldEventKClassList
+                "block" -> blockEventKClassList
+                "team", "entities" -> entityEventKClassList
                 else -> ArrayList()
-            }.forEach {
-                val eventName = it.split(".").last()
-                add("${eventName}-${it.replace(".${eventName}", "")}")
-            }
+            }.forEach { set(it.simpleName!!, it.java.packageName) }
         }
-        stringArgument("classText") {
-            replaceSuggestions(ArgumentSuggestions.strings { classTextList.toTypedArray() })
+        val eventNameArray = packageNameMap.keys.toTypedArray()
+        stringArgument("eventName", true) {
+            replaceSuggestions(ArgumentSuggestions.strings { eventNameArray })
         }
         booleanArgument("value", true)
         anyExecutor { sender, arguments ->
-            val classText = arguments["classText"] as String
-            var normalMessage = ""
-            var successMessage = ""
-            var errorMessage = ""
-            if (classTextList.contains(classText)) {
-                val classTextSplit = classText.split("-")
-                val className = "${classTextSplit[1]}.${classTextSplit[0]}"
-                val valueArgument = arguments["value"]
-                if (valueArgument == null) when (subcommandName) {
-                    "server" -> {
-                        normalMessage = "이 서버의 ${classText}값은 "
-                    }
-                    "world" -> {
-                        normalMessage = ""
-                    }
-                    "block" -> {
-                        normalMessage = ""
-                    }
-                    "entity" -> {
-                        normalMessage = ""
-                    }
-                }
-                else {
-                    val value = arguments["value"] as Boolean
-                    val target = arguments[subcommandName]
-                    when (subcommandName) {
+            val eventArgument = arguments["eventName"]
+            var resultMessage = text("")
+            if (eventArgument == null) {
+
+            }
+            else {
+                val eventName = arguments["eventName"] as String
+                if (eventNameArray.contains(eventName)) {
+                    val className = "${packageNameMap[eventName]}.${eventName}"
+                    val kClass = Class.forName(className).kotlin as KClass<out Event>
+                    val valueArgument = arguments["value"]
+                    if (valueArgument == null) when (subcommandName) {
                         "server" -> {
-                            server.eventFlag.apply {
-                                if (get(className) == value) errorMessage = ""
-                                else {
-                                    set(className, value)
-                                    successMessage = ""
+                            resultMessage = text("")
+                        }
+                        "world" -> {
+                            resultMessage = text("")
+                        }
+                        "block" -> {
+                            resultMessage = text("")
+                        }
+                        "team" -> {
+                            resultMessage = text("")
+                        }
+                        "entities" -> {
+                            resultMessage = text("")
+                        }
+                    }
+                    else {
+                        val value = arguments["value"] as Boolean
+                        val target = arguments[subcommandName]
+                        when (subcommandName) {
+                            "server" -> {
+                                server.eventFlag.apply {
+                                    if (get(kClass) == value) resultMessage = text("")
+                                    else {
+                                        set(kClass, value)
+                                        resultMessage = text("")
+                                    }
+                                }
+                            }
+                            "world" -> {
+                                (target as World).eventFlag.set(kClass, value)
+                                resultMessage = text("")
+                            }
+                            "block" -> {
+                                (target as Location).block.eventFlag.set(kClass, value)
+                                resultMessage = text("")
+                            }
+                            "entity" -> {
+                                (target as Collection<*>).forEach {
+                                    (it as Entity).eventFlag.set(kClass, value)
+                                    resultMessage = text("")
                                 }
                             }
                         }
-                        "world" -> {
-                            (target as World).eventFlag.set(className, value)
-                            r = ""
-                        }
-                        "block" -> {
-                            (target as Location).block.eventFlag.set(className, value)
-                            resultMessage = ""
-                        }
-                        "entity" -> {
-                            (target as Collection<*>).forEach {
-                                (it as Entity).eventFlag.set(className, value)
-                                resultMessage = ""
-                            }
-                        }
                     }
                 }
             }
-            if (normalMessage != "") sender.sendMessage(text(normalMessage, NamedTextColor.YELLOW))
-            else {
-                if (errorMessage != "") sender.sendMessage(text(errorMessage, NamedTextColor.RED))
-                if (successMessage != "") sender.sendMessage(text(successMessage, NamedTextColor.GREEN))
-            }
+            sender.sendMessage(resultMessage)
         }
     }
     subcommand("server") { eventFlagCommand(name) }
@@ -100,7 +103,11 @@ internal fun registerEventFlagCommands(server: Server) = commandAPICommand("even
         locationArgument(name)
         eventFlagCommand(name)
     }
-    subcommand("entity") {
+    subcommand("team") {
+        teamArgument(name)
+        eventFlagCommand(name)
+    }
+    subcommand("entities") {
         entitySelectorArgumentManyEntities(name)
         eventFlagCommand(name)
     }

@@ -5,9 +5,7 @@ import dev.jorel.commandapi.CommandAPIBukkitConfig
 import org.bukkit.plugin.java.JavaPlugin
 
 internal class EventFlagPlugin: JavaPlugin() {
-    override fun onLoad() {
-        CommandAPI.onLoad(CommandAPIBukkitConfig(this))
-    }
+    override fun onLoad() { CommandAPI.onLoad(CommandAPIBukkitConfig(this)) }
     override fun onEnable() {
         EventFlagEventListener(this)
         registerEventFlagCommands(server)

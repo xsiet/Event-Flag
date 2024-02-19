@@ -4,39 +4,39 @@ import org.bukkit.Server
 import org.bukkit.World
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity
+import org.bukkit.event.Event
 import org.bukkit.inventory.Inventory
+import org.bukkit.scoreboard.Team
+import kotlin.reflect.KClass
 
-internal val serverEventClassNameList = ArrayList<String>()
-internal val worldEventClassNameList = ArrayList<String>()
-internal val blockEventClassNameList = ArrayList<String>()
-internal val inventoryEventClassNameList = ArrayList<String>()
-internal val entityEventClassNameList = ArrayList<String>()
-class EventFlag(private val classNameList: ArrayList<String>) {
-    private val list = ArrayList<String>()
-    private fun classNameCheck(className: String) {
-        if (!classNameList.contains(className)) error("")
+internal val serverEventKClassList = ArrayList<KClass<out Event>>()
+internal val worldEventKClassList = ArrayList<KClass<out Event>>()
+internal val blockEventKClassList = ArrayList<KClass<out Event>>()
+internal val inventoryEventKClassList = ArrayList<KClass<out Event>>()
+internal val entityEventKClassList = ArrayList<KClass<out Event>>()
+class EventFlag(private val kClassList: ArrayList<KClass<out Event>>) {
+    private val list = ArrayList<KClass<out Event>>()
+    private fun classCheck(kClass: KClass<out Event>) {
+        if (!kClassList.contains(kClass)) error("")
     }
-    fun get(className: String): Boolean {
-        classNameCheck(className)
-        return !list.contains(className)
+    fun get(kClass: KClass<out Event>): Boolean {
+        classCheck(kClass)
+        return !list.contains(kClass)
     }
-    fun set(className: String, value: Boolean) {
-        classNameCheck(className)
-        if (value) list.remove(className) else list.add(className)
+    fun set(kClass: KClass<out Event>, value: Boolean) {
+        classCheck(kClass)
+        if (value) list.remove(kClass) else list.add(kClass)
     }
 }
-private var serverEventFlag = EventFlag(serverEventClassNameList)
-private val worldEventFlagMap = LinkedHashMap<World, EventFlag>()
-private val blockEventFlagMap = LinkedHashMap<Block, EventFlag>()
-private val inventoryEventFlagMap = LinkedHashMap<Inventory, EventFlag>()
-private val entityEventFlagMap = LinkedHashMap<Entity, EventFlag>()
-val Server.eventFlag get() = serverEventFlag
-fun Server.resetAllEventFlag() { serverEventFlag = EventFlag(serverEventClassNameList) }
-val World.eventFlag get() = worldEventFlagMap.getOrPut(this) { EventFlag(worldEventClassNameList) }
-fun World.resetAllEventFlag() = worldEventFlagMap.remove(this)
-val Block.eventFlag get() = blockEventFlagMap.getOrPut(this) { EventFlag(blockEventClassNameList) }
-fun Block.resetAllEventFlag() = blockEventFlagMap.remove(this)
-val Inventory.eventFlag get() = inventoryEventFlagMap.getOrPut(this) { EventFlag(inventoryEventClassNameList) }
-fun Inventory.resetAllEventFlag() = inventoryEventFlagMap.remove(this)
-val Entity.eventFlag get() = entityEventFlagMap.getOrPut(this) { EventFlag(entityEventClassNameList) }
-fun Entity.resetAllEventFlag() = entityEventFlagMap.remove(this)
+private val serverFlagMap = LinkedHashMap<Server, EventFlag>()
+private val worldFlagMap = LinkedHashMap<World, EventFlag>()
+private val blockFlagMap = LinkedHashMap<Block, EventFlag>()
+private val inventoryFlagMap = LinkedHashMap<Inventory, EventFlag>()
+private val teamFlagMap = LinkedHashMap<Team, EventFlag>()
+private val entityFlagMap = LinkedHashMap<Entity, EventFlag>()
+val Server.eventFlag get() = serverFlagMap.getOrPut(this) { EventFlag(serverEventKClassList) }
+val World.eventFlag get() = worldFlagMap.getOrPut(this) { EventFlag(worldEventKClassList) }
+val Block.eventFlag get() = blockFlagMap.getOrPut(this) { EventFlag(blockEventKClassList) }
+val Inventory.eventFlag get() = inventoryFlagMap.getOrPut(this) { EventFlag(inventoryEventKClassList) }
+val Team.eventFlag get() = teamFlagMap.getOrPut(this) { EventFlag(entityEventKClassList) }
+val Entity.eventFlag get() = entityFlagMap.getOrPut(this) { EventFlag(entityEventKClassList) }

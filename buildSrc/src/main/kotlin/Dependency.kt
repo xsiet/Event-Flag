@@ -8,9 +8,7 @@ object Dependency {
     private const val COMMANDAPI_VERSION = "9.3.0"
     private const val COMMANDAPI_BUKKIT_SHADE = "dev.jorel:commandapi-bukkit-shade:${COMMANDAPI_VERSION}"
     private const val COMMANDAPI_BUKKIT_KOTLIN = "dev.jorel:commandapi-bukkit-kotlin:${COMMANDAPI_VERSION}"
-    val Repositories = arrayListOf(
-        "https://repo.codemc.org/repository/maven-public"
-    )
+    val Repositories = arrayListOf("https://repo.codemc.org/repository/maven-public")
     val Libraries = arrayListOf(
         STDLIB,
         REFLECT,

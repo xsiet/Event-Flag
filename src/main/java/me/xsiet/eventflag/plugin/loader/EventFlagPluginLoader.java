@@ -22,7 +22,11 @@ public class EventFlagPluginLoader implements PluginLoader {
     private record PluginLibraries(Map<String, String> repositories, List<String> dependencies) {
         public Stream<RemoteRepository> asRepositories() {
             Stream<Map.Entry<String, String>> stream = repositories.entrySet().stream();
-            return stream.map(it -> new RemoteRepository.Builder(it.getKey(), "default", it.getValue()).build());
+            return stream.map(it -> new RemoteRepository.Builder(
+                it.getKey(),
+                "default",
+                it.getValue()
+            ).build());
         }
         public Stream<Dependency> asDependencies() {
             Stream<String> stream = dependencies.stream();
@@ -35,9 +39,12 @@ public class EventFlagPluginLoader implements PluginLoader {
         PluginLibraries pluginLibraries;
         try (InputStream inputStream = getClass().getResourceAsStream("/paper-libraries.json")) {
             assert inputStream != null;
-            pluginLibraries = new Gson().fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), PluginLibraries.class);
+            pluginLibraries = new Gson().fromJson(
+                new InputStreamReader(inputStream, StandardCharsets.UTF_8),
+                PluginLibraries.class
+            );
         }
-        catch (IOException exception) { throw new RuntimeException(exception); }
+        catch (IOException ioException) { throw new RuntimeException(ioException); }
         pluginLibraries.asRepositories().forEach(resolver::addRepository);
         pluginLibraries.asDependencies().forEach(resolver::addDependency);
         classpathBuilder.addLibrary(resolver);

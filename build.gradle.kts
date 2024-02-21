@@ -33,7 +33,7 @@ tasks {
     withType<KotlinCompile> { kotlinOptions.jvmTarget = JavaVersion.VERSION_17.toString() }
     processResources { filteringCharset = Charsets.UTF_8.toString() }
     runServer {
-        jvmArgs = arrayListOf("-Dcom.mojang.eula.agree=true")
         minecraftVersion(paperVersion)
+        jvmArgs = arrayListOf("-Dcom.mojang.eula.agree=true")
     }
 }

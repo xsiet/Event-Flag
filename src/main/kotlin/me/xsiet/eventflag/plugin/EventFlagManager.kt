@@ -16,17 +16,18 @@ internal val inventoryEventKClassList = ArrayList<KClass<out Event>>()
 internal val entityEventKClassList = ArrayList<KClass<out Event>>()
 class EventFlag(private val kClassList: ArrayList<KClass<out Event>>) {
     private val list = ArrayList<KClass<out Event>>()
-    private fun classCheck(kClass: KClass<out Event>) {
-        if (!kClassList.contains(kClass)) error("")
+    private fun kClassCheck(kClass: KClass<out Event>) {
+        if (!kClassList.contains(kClass)) error("${kClass.simpleName} isn't in the target's event class list!")
     }
     fun get(kClass: KClass<out Event>): Boolean {
-        classCheck(kClass)
+        kClassCheck(kClass)
         return !list.contains(kClass)
     }
     fun set(kClass: KClass<out Event>, value: Boolean) {
-        classCheck(kClass)
+        kClassCheck(kClass)
         if (value) list.remove(kClass) else list.add(kClass)
     }
+    fun set(value: Boolean) = kClassList.forEach { set(it, value) }
 }
 private val serverFlagMap = LinkedHashMap<Server, EventFlag>()
 private val worldFlagMap = LinkedHashMap<World, EventFlag>()
